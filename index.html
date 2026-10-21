@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Grenzpunkte">
+<meta name="theme-color" content="#f6f5ef">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Grenzpunkte</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app">
+
+  <section id="start" class="start">
+    <div class="start-inhalt">
+      <h1 id="titel">Grenzpunkte</h1>
+      <p id="ort" class="leise"></p>
+      <p class="erklaerung">Wähle auf der Karte einen Grenzpunkt. Ein Pfeil führt dich hin, auch durchs Unterholz. Für den Pfeil braucht die App den Standort und den Kompass.</p>
+      <button id="los" class="taste gross gelb" type="button" disabled>Daten werden geladen …</button>
+      <div id="schluessel-feld" class="schluessel" hidden>
+        <label for="schluessel">Link oder Schlüssel einfügen</label>
+        <input id="schluessel" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://…#…">
+        <button id="schluessel-ok" class="taste" type="button">Öffnen</button>
+      </div>
+      <p id="start-meldung" class="meldung" role="status"></p>
+    </div>
+  </section>
+
+  <main id="haupt" class="haupt" hidden>
+    <header class="leiste">
+      <span id="gps-chip" class="chip">GPS …</span>
+      <span id="kompass-chip" class="chip">Kompass …</span>
+      <button id="liste-auf" class="taste klein" type="button">Liste</button>
+    </header>
+    <div id="karte" class="karte" aria-label="Karte des Grundstücks">
+      <div id="ebene" class="ebene">
+        <img id="luftbild" alt="Luftbild des Grundstücks" draggable="false">
+        <svg id="overlay" aria-hidden="true"></svg>
+      </div>
+      <div class="karten-tasten">
+        <button id="mich" class="taste rund" type="button" aria-label="Mich zeigen">◎</button>
+        <button id="ganz" class="taste rund" type="button" aria-label="Ganzes Grundstück">⤢</button>
+      </div>
+    </div>
+    <section id="ziel-panel" class="ziel-panel">
+      <p id="ziel-text" class="ziel-text">Tippe auf einen Punkt auf der Karte.</p>
+      <button id="hinfuehren" class="taste gross gelb" type="button" hidden>Hinführen</button>
+    </section>
+  </main>
+
+  <section id="fuehren" class="fuehren" hidden>
+    <header class="fuehren-kopf">
+      <button id="zur-karte" class="taste klein" type="button">← Karte</button>
+      <div class="fuehren-titel">
+        <h2 id="f-name">Marco 12</h2>
+        <p id="f-art" class="leise">Grenzstein</p>
+      </div>
+      <button id="ton" class="taste klein" type="button" aria-pressed="true">Ton an</button>
+    </header>
+    <div id="f-warnung" class="warnung" hidden></div>
+    <div class="pfeil-bereich">
+      <svg id="pfeil" class="pfeil" viewBox="-100 -100 200 200" aria-hidden="true">
+        <circle r="96" class="pfeil-ring"/>
+        <g id="pfeil-dreh"><path d="M0 -84 L46 6 L15 0 L15 70 L-15 70 L-15 0 L-46 6 Z" class="pfeil-form"/></g>
+        <text y="-88" class="pfeil-n" id="pfeil-n">N</text>
+      </svg>
+      <div class="entfernung">
+        <div id="f-distanz" class="distanz">–</div>
+        <div id="f-anweisung" class="anweisung">Warte auf GPS …</div>
+        <div id="f-richtung" class="leise"></div>
+      </div>
+    </div>
+    <div class="radar-zeile">
+      <svg id="radar" class="radar" viewBox="-110 -110 220 220" aria-hidden="true"></svg>
+      <div class="werte">
+        <div><span class="leise">GPS</span> <strong id="f-gps">–</strong></div>
+        <div><span class="leise">Du bist bei</span> <strong id="f-ich" class="mono">–</strong></div>
+        <div><span class="leise">Ziel</span> <strong id="f-ziel" class="mono">–</strong></div>
+        <div id="f-radar" class="leise"></div>
+      </div>
+    </div>
+    <div class="fuehren-tasten">
+      <button id="markieren" class="taste gross" type="button">Stein gefunden</button>
+      <div class="zwei">
+        <button id="vorheriger" class="taste" type="button">← Vorheriger</button>
+        <button id="naechster" class="taste" type="button">Nächster →</button>
+      </div>
+    </div>
+    <p class="quer-hinweis">iPhone bitte hochkant halten, sonst stimmt der Pfeil nicht.</p>
+  </section>
+
+  <section id="liste" class="liste" hidden>
+    <header class="liste-kopf">
+      <h2>Grenzpunkte</h2>
+      <span id="fortschritt" class="leise"></span>
+      <button id="liste-zu" class="taste klein" type="button">Schließen</button>
+    </header>
+    <ol id="punkte-liste" class="punkte-liste"></ol>
+    <p class="leise liste-fuss">Gelb: Grenzstein, im Gelände suchen. Weiß: Knickpunkt ohne Stein, dort einen Stock setzen. Die Reihenfolge läuft im Uhrzeigersinn ab dem Haus.</p>
+  </section>
+
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

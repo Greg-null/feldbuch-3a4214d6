@@ -1,0 +1,84 @@
+:root{
+  --bg:#f6f5ef; --surface:#ffffff; --ink:#111511; --muted:#4b524a; --line:#cfd3c8;
+  --gelb:#ffd400; --blau:#0a5cff; --gruen:#13803a; --gruen-hell:#dff3e5; --warn:#a14a00; --warn-hell:#fff0dc;
+  --r:14px; color-scheme:light;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;font-size:18px;line-height:1.4;overscroll-behavior:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+h1,h2{margin:0;line-height:1.1}
+p{margin:0}
+.leise{color:var(--muted);font-size:.9rem}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+
+.taste{font:inherit;font-weight:700;border:2px solid var(--ink);background:var(--surface);color:var(--ink);border-radius:12px;padding:12px 16px;min-height:48px;cursor:pointer;touch-action:manipulation}
+.taste:active{transform:translateY(1px)}
+.taste:disabled{opacity:.55}
+.taste.gross{width:100%;font-size:1.2rem;min-height:60px}
+.taste.gelb{background:var(--gelb)}
+.taste.klein{padding:8px 12px;min-height:42px;font-size:.95rem}
+.taste.rund{width:52px;height:52px;padding:0;border-radius:50%;font-size:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.taste.erledigt{background:var(--gruen);border-color:var(--gruen);color:#fff}
+:focus-visible{outline:3px solid var(--blau);outline-offset:2px}
+
+.start{flex:1;display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom))}
+.start-inhalt{width:100%;max-width:440px;display:grid;gap:16px}
+.start h1{font-size:2.2rem}
+.erklaerung{font-size:1.05rem}
+.schluessel{display:grid;gap:8px}
+.schluessel input{font:inherit;font-size:1rem;padding:12px;border:2px solid var(--ink);border-radius:10px;width:100%}
+.meldung{font-weight:600;color:var(--warn)}
+
+.haupt{flex:1;display:flex;flex-direction:column;min-height:0}
+.leiste{display:flex;gap:8px;align-items:center;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:var(--bg);border-bottom:1px solid var(--line)}
+.leiste .taste{margin-left:auto}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 10px;font-size:.85rem;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip.gut{border-color:var(--gruen);color:var(--gruen)}
+.chip.warn{border-color:var(--warn);color:var(--warn);background:var(--warn-hell)}
+.karte{position:relative;flex:1;overflow:hidden;background:#2b2f2a;touch-action:none;user-select:none;-webkit-user-select:none}
+.ebene{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.ebene img,.ebene svg{position:absolute;left:0;top:0;display:block;pointer-events:none}
+.karten-tasten{position:absolute;right:12px;bottom:12px;display:grid;gap:10px}
+.ziel-panel{padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:var(--surface);border-top:2px solid var(--ink);display:grid;gap:10px}
+.ziel-text{font-size:1.05rem}
+.ziel-text strong{font-size:1.2rem}
+
+.fuehren{flex:1;display:flex;flex-direction:column;gap:10px;padding:calc(8px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));overflow-y:auto;background:var(--bg)}
+.fuehren.da{background:var(--gruen-hell)}
+.fuehren-kopf{display:flex;align-items:center;gap:10px}
+.fuehren-titel{flex:1;min-width:0;text-align:center}
+.fuehren-titel h2{font-size:1.5rem}
+.warnung{background:var(--warn-hell);border:2px solid var(--warn);color:var(--warn);border-radius:10px;padding:8px 12px;font-weight:700;font-size:.95rem}
+.pfeil-bereich{display:grid;justify-items:center;gap:6px}
+.pfeil{width:min(62vw,300px);height:auto;max-height:40vh}
+.pfeil-ring{fill:var(--surface);stroke:var(--ink);stroke-width:3}
+.pfeil-form{fill:var(--gelb);stroke:var(--ink);stroke-width:5;stroke-linejoin:round}
+.fuehren.da .pfeil-form{fill:var(--gruen)}
+.pfeil-n{font-size:16px;font-weight:800;text-anchor:middle;fill:#c42f37}
+.entfernung{text-align:center;display:grid;gap:2px}
+.distanz{font-size:3.6rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.anweisung{font-size:1.35rem;font-weight:700}
+.radar-zeile{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.radar{width:132px;height:132px}
+.werte{display:grid;gap:4px;font-size:.95rem;min-width:0}
+.werte strong{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.fuehren-tasten{display:grid;gap:10px;margin-top:auto}
+.zwei{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quer-hinweis{display:none}
+@media (orientation:landscape) and (max-height:500px){.quer-hinweis{display:block;position:fixed;inset:0;background:rgba(17,21,17,.92);color:#fff;font-size:1.3rem;font-weight:700;display:grid;place-items:center;text-align:center;padding:24px}}
+
+.liste{position:fixed;inset:0;z-index:5;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+.liste-kopf{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.liste-kopf h2{font-size:1.3rem}
+.liste-kopf .taste{margin-left:auto}
+.punkte-liste{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1}
+.punkte-liste li+li{border-top:1px solid var(--line)}
+.punkte-liste button{width:100%;display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;padding:12px 14px;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.marke{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.95rem;border:2px solid var(--ink);background:var(--gelb)}
+.marke.knick{background:var(--surface);border-radius:10px}
+.marke.erledigt{background:var(--gruen);border-color:var(--gruen);color:#fff}
+.punkte-liste .sub{display:block;color:var(--muted);font-size:.85rem}
+.punkte-liste .weit{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.liste-fuss{padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
