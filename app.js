@@ -89,6 +89,7 @@ function vorbereiten() {
 $("los").addEventListener("click", losGehts);
 
 async function losGehts() {
+  try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch {}
   try { const AC = window.AudioContext || window.webkitAudioContext; if (AC && !audio) audio = new AC(); audio?.resume?.(); } catch {}
   await kompassStarten();
   gpsStarten();
@@ -97,6 +98,7 @@ async function losGehts() {
   const z = params.get("ziel");
   if (z) { const i = D.punkte.findIndex(p => p.kurz === z); if (i >= 0) waehle(i, params.get("ansicht") === "fuehren"); }
   karteEinpassen();
+  setInterval(planen, 1000);
   planen();
 }
 
@@ -159,7 +161,7 @@ function neuerFix(f) {
   const juengst = fixes.filter(x => jetzt - x.t <= 20000);
   const ruhig = m20 && juengst.length >= 4 && juengst.every(x => distanzM(ll(x), ll(m20)) < Math.max(3, m20.acc));
   const aktuell = mittelwert(fixes, jetzt, 4000) || { lat: f.lat, lon: f.lon, acc: f.acc, anzahl: 1 };
-  pos = ruhig ? { ...m20, ruhig: true } : { ...aktuell, ruhig: false };
+  pos = ruhig ? { ...m20, ruhig: true, t: f.t } : { ...aktuell, ruhig: false, t: f.t };
   gpsFehler = null;
   planen();
 }
@@ -167,7 +169,8 @@ function neuerFix(f) {
 async function wachHalten() {
   try { if ("wakeLock" in navigator && document.visibilityState === "visible") wake = await navigator.wakeLock.request("screen"); } catch {}
 }
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && ansicht !== "start") wachHalten(); });
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && ansicht !== "start") { wachHalten(); audio?.resume?.(); } });
+document.addEventListener("pointerdown", () => { audio?.resume?.(); }, { passive: true });
 
 function zeige(a) {
   ansicht = a;
@@ -195,19 +198,21 @@ function zeichnen() {
   zeichneChips();
   if (ansicht === "karte") { zeichneKarte(); zeichneZielPanel(); }
   if (ansicht === "fuehren") zeichneFuehren();
-  if (!$("liste").hidden) zeichneListe();
+  if (!$("liste").hidden) listeAktualisieren();
 }
 
 function zeichneChips() {
   const g = $("gps-chip"), k = $("kompass-chip");
   if (gpsFehler && !pos) { g.textContent = "GPS fehlt"; g.className = "chip warn"; }
   else if (!pos) { g.textContent = "GPS sucht …"; g.className = "chip"; }
+  else if (veraltetS() > 10) { g.textContent = `GPS weg (${veraltetS()} s)`; g.className = "chip warn"; }
   else { g.textContent = `GPS ±${Math.round(pos.acc)} m`; g.className = pos.acc <= 8 ? "chip gut" : "chip warn"; }
   const kt = { an: ["Kompass an", "chip gut"], wartet: ["Kompass …", "chip"], fehlt: ["ohne Kompass", "chip warn"], verweigert: ["Kompass aus", "chip warn"], aus: ["Kompass aus", "chip"] }[kompass];
   k.textContent = kt[0]; k.className = kt[1];
 }
 
 const pz = p => zuPixel(ll(p), D.bild);
+const veraltetS = () => (pos ? Math.round((Date.now() - pos.t) / 1000) : 0);
 
 function zeichneKarte() {
   const s = karte.s, svg = $("overlay");
@@ -277,6 +282,7 @@ function zeichneFuehren() {
   mb.className = erl ? "taste gross erledigt" : "taste gross";
   const warn = $("f-warnung");
   if (gpsFehler && !pos) { warn.hidden = false; warn.textContent = gpsFehler; }
+  else if (veraltetS() > 10) { warn.hidden = false; warn.textContent = `Seit ${veraltetS()} s kein GPS-Signal. Pfeil und Meter zeigen die letzte bekannte Position. Kurz stehen bleiben, möglichst freie Sicht zum Himmel.`; }
   else if (pos && pos.acc > 8) { warn.hidden = false; warn.textContent = `GPS noch ungenau (±${Math.round(pos.acc)} m). Kurz stehen bleiben, möglichst freie Sicht zum Himmel.`; }
   else if (kompass === "verweigert" || kompass === "fehlt") { warn.hidden = false; warn.textContent = "Ohne Kompass: Der Pfeil zeigt mit Norden nach oben. Erst ein paar Schritte gehen, dann die Richtung vergleichen."; }
   else warn.hidden = true;
@@ -322,6 +328,7 @@ function zeichneRadar(d, winkel, mitKompass) {
 function piep() {
   if (!ton || !audio) return;
   try {
+    audio.resume?.();
     const t = audio.currentTime;
     [0, 0.22].forEach(off => {
       const o = audio.createOscillator(), g = audio.createGain();
@@ -338,14 +345,23 @@ function zeichneListe() {
   $("fortschritt").textContent = `${fertig} von ${D.punkte.length} erledigt`;
   ol.innerHTML = "";
   D.punkte.forEach((p, i) => {
-    const { d, peil } = zielInfo(i);
     const li = document.createElement("li");
     const erl = status[p.kurz];
     li.innerHTML = `<button type="button"><span class="marke ${p.art === "knick" ? "knick" : ""} ${erl ? "erledigt" : ""}">${p.kurz}</span>`
       + `<span><strong>${p.name}</strong><span class="sub">${p.art === "stein" ? "Grenzstein" : "Knickpunkt, Stock setzen"}${erl ? " · erledigt" : ""}</span></span>`
-      + `<span class="weit">${d === null ? "" : `${formatMeter(d)} ${KURZ[himmelsrichtung(peil)]}`}</span></button>`;
+      + `<span class="weit"></span></button>`;
     li.firstChild.addEventListener("click", () => { $("liste").hidden = true; waehle(i, true); });
     ol.appendChild(li);
+  });
+  listeAktualisieren();
+}
+
+function listeAktualisieren() {
+  const felder = $("punkte-liste").querySelectorAll(".weit");
+  D.punkte.forEach((p, i) => {
+    const { d, peil } = zielInfo(i);
+    const text = d === null ? "" : `${formatMeter(d)} ${KURZ[himmelsrichtung(peil)]}`;
+    if (felder[i] && felder[i].textContent !== text) felder[i].textContent = text;
   });
 }
 

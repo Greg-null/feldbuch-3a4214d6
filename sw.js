@@ -1,8 +1,8 @@
-const CACHE = "grenzpunkte-dcd5e915b2b2";
+const CACHE = "grenzpunkte-7581c3727cfc";
 const DATEIEN = ["./", "index.html", "app.css", "app.js", "geo.js", "daten.bin", "manifest.webmanifest", "icon-180.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(DATEIEN)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(DATEIEN.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
